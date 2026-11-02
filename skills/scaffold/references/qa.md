@@ -1,6 +1,8 @@
 # Web QA
 
-`packages/qa`: Playwright + Midscene at compatible versions, browsers pinned by the Playwright version. Required offline tests start the production Web build with Playwright's `webServer` (no `reuseExistingServer` in CI) and cover a meaningful route, plus the [auth](auth.md) flow when Web owns auth. Midscene tests call a paid model: a separate opt-in script, credentials from ignored env, never part of required CI.
+`packages/qa`: Playwright, browsers pinned by the Playwright version. Required offline tests start the production Web build with Playwright's `webServer` (no `reuseExistingServer` in CI) and cover a meaningful route, plus the [auth](auth.md) flow when Web owns auth.
+
+Midscene is an optional add-on inside `qa` (recommended on; skip it when no model API key is available). Install it at a version compatible with Playwright. Its tests call a paid model: a separate opt-in script, credentials from ignored env, never part of required CI.
 
 Acceptance: breaking the tested route fails the offline suite; the selected auth flow passes.
 
