@@ -28,7 +28,7 @@ Prerequisites: git, Bun, uv, [graphify](https://github.com/safishamsi/graphify),
 
 Generated projects commit only ordinary config: `package.json` scripts, `lefthook.yml` (pre-commit: lint check, `graphify update .`, `gitleaks git --staged --redact`), and GitHub Actions YAML.
 
-**Validation status (2026-11-02):** one local run (Web + db, deploy none, local-only) passed all local gates; remote steps and every other combination are unvalidated. Renovate does not update bun `workspaces.catalog` yet ([renovatebot/renovate#42909](https://github.com/renovatebot/renovate/pull/42909)); generated projects document a manual weekly catalog update.
+**Validation status (2026-11-02):** local runs passed all local gates for Web + db and for Web + Server + db + auth (auth owned by Server, deploy none, local-only); remote steps and every other combination are unvalidated. Renovate does not update bun `workspaces.catalog` yet ([renovatebot/renovate#42909](https://github.com/renovatebot/renovate/pull/42909)); generated projects document a manual weekly catalog update.
 
 The Codex `quick_validate.py` rejects Claude's `disable-model-invocation` frontmatter field. Keep it: Claude Code needs it for explicit-only invocation.
 
