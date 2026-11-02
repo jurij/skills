@@ -8,5 +8,6 @@ Acceptance: a planted type-aware violation (when enabled) and a planted format v
 
 Pitfall (2026-11-02): oxfmt is pre-1.0; pin exactly, never float across minors.
 Pitfall (2026-11-02): oxfmt 0.75 ignored `.oxfmtrc.ts` ("No config found") and formatted with defaults; name the files `oxlint.config.ts` and `oxfmt.config.ts`, which both tools discover.
+Pitfall (2026-11-02): generated sources (Start's `routeTree.gen.ts`, the better-auth Drizzle schema) fail Ultracite rules such as `sort-keys`; list them in `ignorePatterns` of both configs.
 
 Sources: [Ultracite 8](https://www.ultracite.ai/changelog/ultracite-8-0-0), [oxc type-aware linting](https://oxc.rs/blog/2026-07-22-type-aware-linting-stable).
