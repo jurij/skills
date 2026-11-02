@@ -1,41 +1,37 @@
 # skills
 
-My agent skills for Claude Code, Codex, and other coding agents.
-
-They are opinionated: built for how I work, and I am their first user. Fork and adapt freely.
+Opinionated agent skills for Claude Code and Codex. Fork and adapt freely.
 
 ## Install
 
-With the [`skills`](https://github.com/vercel-labs/skills) CLI (Node.js 22.20+), any agent:
+With the [skills CLI](https://github.com/vercel-labs/skills/blob/main/docs/commands.md), selecting agents interactively:
 
 ```bash
-# All skills, globally, for Claude Code and Codex
-npx skills@latest add jurij/skills -g -a claude-code -a codex --skill '*' -y
-
-# Only scaffold
-npx skills@latest add jurij/skills -g -a claude-code --skill scaffold -y
-
-# See what is available
-npx skills@latest add jurij/skills --list
+npx skills add jurij/skills --skill scaffold -g
 ```
 
-Drop `-g` to install into the current project instead. Update with `npx skills@latest update`.
-
-Or as a Claude Code plugin (updates itself, skills are namespaced as `/jurij-skills:<name>`):
+Non-interactive, for both hosts (auto-detection does not select every installed agent):
 
 ```bash
-claude plugin marketplace add jurij/skills
-claude plugin install jurij-skills@jurij
+npx skills add jurij/skills --skill scaffold -g -a claude-code -a codex -y
 ```
 
-Pick one method per agent; using both installs every skill twice.
+Omit `-g` to install into the current project.
 
-## Skills
+## Scaffold
 
-User-invoked only (the agent never triggers them on its own):
+[`scaffold`](skills/scaffold/SKILL.md) sets up a Bun + Turborepo project with selected Web, Server, Native, or Desktop apps, optional Docs and Storybook, shared packages, lint, Git hooks, CI, and deployment. Invoke `/scaffold` in Claude Code or `$scaffold` in Codex; both hosts allow explicit invocation only.
 
-- [`scaffold`](./skills/scaffold/SKILL.md): set up a new project (monorepo, apps, packages, tooling, CI, deploy) through incremental question rounds, then build it commit by commit. **Under design, not usable yet.**
+It asks in rounds, shows a summary for a first confirmation (local build and tool installs), builds one green commit per unit, and asks a second time before anything remote: repository, push, migrations, deployment.
+
+Prerequisites: git, Bun, uv, [graphify](https://github.com/safishamsi/graphify), and gitleaks as global tools; the skill lists missing or outdated ones and installs their newest versions after the first confirmation. Docker Desktop (for local Postgres) and platform SDKs stay manual.
+
+Generated projects commit only ordinary config: `package.json` scripts, `lefthook.yml` (pre-commit: lint check, `graphify update .`, `gitleaks git --staged --redact`), and GitHub Actions YAML.
+
+**Validation status (2026-11-02):** one local run (Web + db, deploy none, local-only) passed all local gates; remote steps and every other combination are unvalidated. Renovate does not update bun `workspaces.catalog` yet ([renovatebot/renovate#42909](https://github.com/renovatebot/renovate/pull/42909)); generated projects document a manual weekly catalog update.
+
+The Codex `quick_validate.py` rejects Claude's `disable-model-invocation` frontmatter field. Keep it: Claude Code needs it for explicit-only invocation.
 
 ## License
 
-[MIT](./LICENSE)
+[MIT](LICENSE)
