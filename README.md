@@ -20,15 +20,28 @@ Omit `-g` to install into the current project.
 
 ## Scaffold
 
-[`scaffold`](skills/scaffold/SKILL.md) sets up a Bun + Turborepo project with selected Web, Server, Native, or Desktop apps, optional Docs and Storybook, shared packages, lint, Git hooks, CI, and deployment. Invoke `/scaffold` in Claude Code or `$scaffold` in Codex; both hosts allow explicit invocation only.
+[`scaffold`](skills/scaffold/SKILL.md) sets up a repository: workspace, the selected Web, Server, Native, or Desktop apps, optional Docs and Storybook, shared packages, lint, Git hooks, CI, and deployment config, so that everything installs, builds, tests, and starts. How the apps talk to each other at runtime stays the project's decision. Invoke `/scaffold` in Claude Code or `$scaffold` in Codex; both hosts allow explicit invocation only.
 
-It asks in rounds, shows a summary for a first confirmation (local build and tool installs), builds one green commit per unit, and asks a second time before anything remote: repository, push, migrations, deployment.
+**New project or existing repository.** An empty target becomes a new project. In an existing repository the skill detects the stack from `package.json`, the lockfile, and config files, offers only the missing building blocks that fit it (for example Docs, a database, or CI), and adds each as one commit on the current branch. It never migrates existing tooling, and it asks before touching a dirty tree.
 
-Prerequisites: git, Bun, uv, [graphify](https://github.com/safishamsi/graphify), and gitleaks as global tools; the skill lists missing or outdated ones and installs their newest versions after the first confirmation. Docker Desktop (for local Postgres) and platform SDKs stay manual.
+**Recommended stack, or customize.** The first round shows one recommended stack:
 
-Generated projects commit only ordinary config: `package.json` scripts, `lefthook.yml` (pre-commit: lint check, `graphify update .`, `gitleaks git --staged --redact`), and GitHub Actions YAML.
+> bun · Turborepo · TanStack Start · Postgres + Drizzle · better-auth · Ultracite (oxlint + oxfmt) · lefthook · GitHub Actions
 
-**Validation status (2026-11-02):** local runs passed all local gates for Web + db and for Web + Server + db + auth (auth owned by Server, deploy none, local-only); remote steps and every other combination are unvalidated. Renovate does not update bun `workspaces.catalog` yet ([renovatebot/renovate#42909](https://github.com/renovatebot/renovate/pull/42909)); generated projects document a manual weekly catalog update.
+*Use recommended* keeps it. *Customize* asks only the axes that apply to the selection, recommendation first: package manager (bun, pnpm, npm), layout (Turborepo, Nx, workspaces only, single package), web (TanStack Start, Next.js, Vite + React SPA), db (Postgres + Drizzle, Postgres + Prisma, SQLite + Drizzle), auth (better-auth, an external OIDC provider), lint (Ultracite with oxlint + oxfmt or Biome, ESLint + Prettier), and Git hooks (lefthook, husky). Native (Expo), Desktop (Electron), Docs (Fumadocs), Storybook, and CI (GitHub Actions) have one option each. Decisions given in the invocation prompt are not asked again.
+
+**Flow.** Questions come in as few rounds as possible. A summary then lists the stack (every choice outside the recommendation marked "unvalidated"), versions, gates, and the tools to install, for a first confirmation: local build and tool installs. The skill builds one green commit per unit and asks a second time before anything remote: repository, push, migrations, deployment.
+
+**Always included:** `AGENTS.md` (never `CLAUDE.md`) and a gitleaks secret scan in the pre-commit hook and CI. A [graphify](https://github.com/safishamsi/graphify) code graph is on by default and can be deselected. Generated projects commit only ordinary config: `package.json` scripts, the hook config, and GitHub Actions YAML.
+
+**Prerequisites:** git, the chosen package manager (plus Node for pnpm and npm), and gitleaks; uv and graphify when the code graph is selected. The skill lists missing or outdated tools before the first confirmation and installs their newest versions afterwards. Docker Desktop (for local Postgres) and platform SDKs stay manual.
+
+**Validation status (2026-11-02, v0.1.0):** local runs passed every local gate and acceptance check for these combinations (deploy none, local-only):
+- recommended stack: Web + db, Web + Server + db + auth (v0.0.2), Web only via *Use recommended* (v0.1.0);
+- customized: pnpm + single package + Next.js + Postgres + Prisma + ESLint + Prettier + husky, code graph off;
+- existing repository: Docs (Fumadocs on TanStack Start) added to a Bun + Turborepo Web + Server + db + auth repository.
+
+Remote steps, Nx, workspaces only, npm, Vite SPA, SQLite, OIDC, Ultracite with Biome, Native, Desktop, Storybook, qa, and every deploy target are unvalidated. Renovate does not update bun `workspaces.catalog` yet ([renovatebot/renovate#42909](https://github.com/renovatebot/renovate/pull/42909)); generated bun projects document a manual weekly catalog update.
 
 The Codex `quick_validate.py` rejects Claude's `disable-model-invocation` frontmatter field. Keep it: Claude Code needs it for explicit-only invocation.
 
