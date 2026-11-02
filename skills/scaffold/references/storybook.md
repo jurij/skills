@@ -4,6 +4,6 @@
 
 Acceptance: the static build serves the story with the expected content, and the interaction test passes without backend secrets.
 
-Pitfall (2026-11-02): Storybook's Vite framework is not a Start runtime; mock Start APIs explicitly.
+Pitfall (Storybook, 2026-11-02): its Vite framework is not the web framework's runtime; mock framework APIs (Start server functions, Next.js router) explicitly.
 
 Sources: [React + Vite](https://storybook.js.org/docs/get-started/frameworks/react-vite), [testing](https://storybook.js.org/docs/writing-tests).

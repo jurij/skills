@@ -1,13 +1,22 @@
 # Lint and format
 
-Ultracite 8 with oxlint + oxfmt, one root config: shared presets plus framework rules only for selected apps. Use Ultracite's tested tool ranges when pinning. Enable type-aware linting (`oxlint-tsgolint`, `typeAware`) when the resolved TypeScript and framework tools support it. `check` runs in check mode in the pre-commit hook and CI; formatting is an explicit edit beforehand. `check-types` (the compiler) stays a separate gate under any lint setup.
+One root config: shared presets plus framework rules only for selected apps. `check` runs lint and format in check mode, in the pre-commit hook and CI; formatting is an explicit edit beforehand. Enable type-aware linting when the resolved TypeScript and lint tools support it. `check-types` (the compiler) stays a separate gate under any lint setup.
 
-Fallbacks need the user's decision before use: type-aware lint incompatible → oxlint without type-aware rules; Ultracite's oxc provider incompatible → Biome.
+## Ultracite (oxlint + oxfmt, or Biome)
 
-Acceptance: a planted type-aware violation (when enabled) and a planted format violation each fail `bun run check`; remove both afterwards.
+Ultracite 8 with the chosen provider; use Ultracite's tested tool ranges when pinning. With oxlint, type-aware linting uses `oxlint-tsgolint` and `typeAware`. When a type-aware rule set or the oxc provider is incompatible with the selection, the user decides the fallback: oxlint without type-aware rules, or Biome.
 
-Pitfall (2026-11-02): oxfmt is pre-1.0; pin exactly, never float across minors.
-Pitfall (2026-11-02): oxfmt 0.75 ignored `.oxfmtrc.ts` ("No config found") and formatted with defaults; name the files `oxlint.config.ts` and `oxfmt.config.ts`, which both tools discover.
-Pitfall (2026-11-02): generated sources (Start's `routeTree.gen.ts`, the better-auth Drizzle schema) fail Ultracite rules such as `sort-keys`; list them in `ignorePatterns` of both configs.
+## ESLint + Prettier
 
-Sources: [Ultracite 8](https://www.ultracite.ai/changelog/ultracite-8-0-0), [oxc type-aware linting](https://oxc.rs/blog/2026-07-22-type-aware-linting-stable).
+ESLint flat config with typescript-eslint (type-checked configs when supported), the framework's plugin for each selected app, and `eslint-config-prettier` last. `check` runs `eslint .` and `prettier --check .`.
+
+Acceptance: a planted lint violation (type-aware when enabled) and a planted format violation each fail `<pm> run check`; remove both afterwards. Generated sources are excluded from lint and format. Types generated from sources (ORM clients, Next.js `next typegen`) are generated at the start of `check` and `check-types`, because type-aware rules read them. Generator output the project owns afterwards (shadcn components) is fixed to the rules, not ignored.
+
+Pitfall (oxfmt, 2026-11-02): oxfmt is pre-1.0; pin exactly, never float across minors.
+Pitfall (oxfmt 0.75, 2026-11-02): oxfmt ignored `.oxfmtrc.ts` ("No config found") and formatted with defaults; name the files `oxlint.config.ts` and `oxfmt.config.ts`, which both tools discover.
+Pitfall (oxlint, 2026-11-02): `ignorePatterns` from extended configs do not apply; the root config re-declares the preset's patterns (`[...core.ignorePatterns, …]`) next to its own.
+Pitfall (typescript-eslint 8.72, 2026-11-02): it supports `typescript <6.1.0`; with type-aware ESLint, pin TypeScript 6.0.x.
+Pitfall (eslint-config-next 16.4, 2026-11-02): on ESLint 10 its wrapped plugins report unmet peers (their ranges stop at ESLint 9, which is end-of-life); accept them.
+Pitfall (Ultracite, 2026-11-02): generated sources (Start's `routeTree.gen.ts`, the better-auth Drizzle schema) fail rules such as `sort-keys`; list them in `ignorePatterns` of both configs.
+
+Sources: [Ultracite](https://www.ultracite.ai/), [oxc type-aware linting](https://oxc.rs/blog/2026-07-22-type-aware-linting-stable), [typescript-eslint](https://typescript-eslint.io/getting-started/), [Prettier with linters](https://prettier.io/docs/integrating-with-linters).
