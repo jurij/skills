@@ -1,5 +1,5 @@
 interface:
   display_name: "Scaffold"
-  short_description: "Set up a new project step by step"
+  short_description: "Set up or extend a project step by step"
 policy:
   allow_implicit_invocation: false
