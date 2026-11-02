@@ -63,7 +63,7 @@ Each row is a question group, not a round: a round holds every group whose depen
 | Ownership | New mode: GitHub personal account, an organization (list with paginated read-only `gh api`), or local-only. Defaults: private repository, project name from the folder (validate npm and GitHub naming), email/password with better-auth. Extend mode keeps the existing remote. |
 | Integrations | Code graph with graphify (on by default, deselectable), project-local skills, MCP services; target hosts (Claude Code, Codex; default both) only when skills or MCP services are selected. Coolify endpoint only if Coolify is selected; PR previews on by default. Extend mode detects existing integrations instead of asking. |
 
-AGENTS.md and a secret scan in the pre-commit hook are never optional, and new mode always builds the CI unit (local-only runs validate it without running it). The auth owner is Server when selected, otherwise Web.
+AGENTS.md and gitleaks secret scans in the pre-commit hook and in CI are never optional: new mode builds them in bootstrap and the CI unit (local-only runs validate CI without running it); extend mode adds whichever part is missing. The auth owner is Server when selected, otherwise Web.
 
 For credentials, use existing provider sessions (`gh auth status`, `wrangler whoami`, …) or the host's secret input; otherwise the user configures them directly in the provider or a local ignored file. Question text never asks for a credential.
 
@@ -89,7 +89,7 @@ Read [tools](references/tools.md) and the reference of every selected unit. Each
 | Coolify | [deploy-coolify](references/deploy-coolify.md) |
 | Cloudflare | [deploy-cloudflare](references/deploy-cloudflare.md) |
 
-Extend mode reads [workspace](references/workspace.md) for the detected layout, [lint](references/lint.md) for ignore patterns of the new unit's generated sources, and [hooks](references/hooks.md) when the repository lacks a pre-commit secret scan.
+Extend mode reads [workspace](references/workspace.md) for the detected layout, [lint](references/lint.md) for ignore patterns of the new unit's generated sources, [hooks](references/hooks.md) when the repository lacks a pre-commit secret scan, and [ci](references/ci.md) when it lacks a CI secret scan.
 
 1. Check every CLI the selection needs, read-only, per [tools](references/tools.md). Note each one missing or older than its newest release.
 2. Resolve the newest mutually compatible stable versions once, following the resolution order in [workspace](references/workspace.md) and each reference's constraints; freeze them for the run. Extend mode resolves new dependencies against the versions the repository already pins.
@@ -105,12 +105,12 @@ Done when each listed tool's version command reports the newest release, or the 
 
 ## 5. Build and commit units
 
-A unit is one coherent change that is green on its own: bootstrap (new mode: workspace, `config`, `env`, lint, hooks, AGENTS.md), `ui`, an app, `db`, `auth`, `qa`, CI, a deploy target; in extend mode also AGENTS.md or the pre-commit secret scan when the repository lacks them. Order follows dependencies, not a fixed list: bootstrap first; `env` before its consumers; `ui` before browser apps; `db` and the auth owner app before `auth`; CI and deploy config after the app they cover builds. Each unit follows its reference from the step 3 table.
+A unit is one coherent change that is green on its own: bootstrap (new mode: workspace, `config`, `env`, lint, hooks, AGENTS.md), `ui`, an app, `db`, `auth`, `qa`, CI, a deploy target; in extend mode also AGENTS.md, the pre-commit secret scan, or the CI secret scan when the repository lacks them. Order follows dependencies, not a fixed list: bootstrap first; `env` before its consumers; `ui` before browser apps; `db` and the auth owner app before `auth`; CI and deploy config after the app they cover builds. Each unit follows its reference from the step 3 table.
 
 The gates are `<pm> run check`, `check-types`, `build`, and `test` across the workspace. Extend mode uses the repository's existing scripts for them and reports a missing one instead of adding it.
 
 For each unit:
-1. Implement only the selected building blocks and their prerequisites. Extend mode changes existing files only where the unit must register itself: workspace or catalog entries, the lockfile, `ui` source scanning, hook jobs, lint ignore patterns for the unit's generated sources, its AGENTS.md section, and its `docs/scaffold.md` entry. The graph the hook refreshes belongs to every commit.
+1. Implement only the selected building blocks and their prerequisites. Extend mode changes existing files only where the unit must register itself: dependency declarations and package scripts the unit needs, workspace or catalog entries, the lockfile, CI jobs, `ui` source scanning, hook jobs, lint ignore patterns for the unit's generated sources, its AGENTS.md section, and its `docs/scaffold.md` entry. The graph the hook refreshes belongs to every commit.
 2. Run the gates. Tests run once (`vitest run --passWithNoTests`). Once an app exists it has a meaningful test; before that, `build` is not applicable and recorded so.
 3. Run the unit's local acceptance checks from its reference against fresh processes, never cached success; checks a reference marks "after approval" wait for step 6. HTTP apps (Web, Server, Docs, Storybook): expected status and content from the production build, not only the dev server. Electron and Expo: build or export, then launch. With `db`, start the database and apply migrations before any auth check.
 4. Add the unit's real commands and conventions to AGENTS.md and its decisions to `docs/scaffold.md`.

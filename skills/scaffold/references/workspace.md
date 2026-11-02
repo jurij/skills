@@ -2,12 +2,12 @@
 
 ## Versions (preflight)
 
-Resolve the newest mutually compatible stable set once and freeze it. Stable means the highest non-prerelease, non-deprecated version that the package manager's configured `minimumReleaseAge` allows; the `latest` dist-tag can point at a prerelease. Freeze exact versions for direct dependencies and catalog entries, `packageManager` pinned to the frozen package-manager version (`<pm> --version` after step 4 matches it), the lockfile committed. pnpm and npm run on Node: pin the frozen Node major in `engines.node` and a committed `.node-version`, which CI reads. Keep version constraints that a generator writes when they are its supported range. Upgrades are separate later changes.
+Resolve the newest mutually compatible stable set once and freeze it. Stable means the highest non-prerelease, non-deprecated version that the package manager's configured `minimumReleaseAge` allows; the `latest` dist-tag can point at a prerelease. Freeze exact versions for direct dependencies and catalog entries, `packageManager` pinned to the frozen package-manager version (`<pm> --version` after step 4 matches it), the lockfile committed. pnpm and npm run on Node: pin the frozen Node major in `engines.node` and a committed `.node-version`, which CI reads. Upgrades are separate later changes.
 
 Resolution order:
 1. Native selected: the Expo SDK dictates React and React Native; take them from its compatibility set.
 2. Intersect the peer ranges of the web framework, Vite, the Desktop renderer, Storybook, Docs, and `ui`. An empty intersection is a blocker to show in the summary.
-3. Pin generators and CLIs you invoke (`bunx`, `pnpm dlx`, or `npx` with `<tool>@<version>`), and re-pin exactly any range a generator saves for packages it installs.
+3. Pin generators and CLIs you invoke (`bunx`, `pnpm dlx`, or `npx` with `<tool>@<version>`). A range a generator writes or saves marks its supported versions: pin an exact version inside it.
 
 ## Layout (bootstrap)
 
