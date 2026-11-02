@@ -1,31 +1,23 @@
 # Auth
 
-better-auth with the Drizzle adapter; requires [db](db.md). The single owner fixed in the Decide step mounts the GET/POST auth routes; other apps use client helpers from a package that never imports server config.
+Auth is installed and configured in its owner app, fixed in the Decide step (Server when selected, otherwise Web). How other apps consume it is the project's decision.
 
-## Setup
+## better-auth
 
-- Generate the better-auth schema with the `auth` CLI at the better-auth version (`bunx auth@<version> generate`), then generate and apply Drizzle migrations.
-- Explicit base URL, trusted origins, secure cookies in production, credentialed CORS only where a cross-origin client needs it. Development origins stay out of production config.
-- Start server functions that set cookies use better-auth's TanStack Start cookie plugin, listed last.
-- Native: `@better-auth/expo` with `expo()` on the owner; `expoClient()` with `expo-secure-store` storage, an explicit app scheme, and `expo-network` on the client.
-- Every protected server operation checks the session; client route guards authorize nothing.
-- Desktop: decide session storage before building, either a secure cookie session with a fixed origin or main-process protected storage behind a narrow validated preload API. The renderer never sees the database or the auth secret.
+Requires [db](db.md) and uses the selected ORM's adapter (Drizzle by default).
 
-## Web + Server
+- Generate the better-auth schema with the `auth` CLI at the better-auth version (`bunx`, `pnpm dlx`, or `npx` with `auth@<version> generate`), then generate and apply the ORM's migrations.
+- The owner mounts the auth routes, with an explicit base URL, secret, and trusted origins from env; secure cookies in production.
+- Owner on Start or Next.js: server code that sets cookies uses the framework's cookie plugin (`tanstackStartCookies`, `nextCookies`), listed last.
+- For cross-origin clients, follow the better-auth docs on trusted origins and cookies.
 
-- Proxy: Web exposes a fixed `/api/auth/*` reverse proxy to the configured Server owner, so browsers stay same-origin with host-only cookies. The owner's base URL and trusted origin are the Web origin. The upstream comes from config, never from the request. Forward Cookie and Origin; keep each Set-Cookie header separate. Check: a signup through the proxy sets the cookie on the Web origin.
-- SSR: Start forwards the incoming cookie only to the owner's session endpoint, without caching or following redirects, passes refreshed cookies into its response, and marks session-dependent responses `Cache-Control: private, no-store`. Web never instantiates a second auth owner. Check: authenticated SSR reload.
+## External OIDC provider
 
-Acceptance, per selected client platform, against disposable data:
-- signup creates a user;
-- the next request carries a session;
-- an unauthenticated request is rejected;
-- logout invalidates the session.
+The user names a standards-compliant OIDC provider. The owner uses a maintained OIDC client library for its runtime; issuer URL, client ID, and client secret live in ignored env, never in committed config. Local checks need a disposable local OIDC provider or the user's test tenant; without one, the auth checks are blocked.
 
-Web also checks an authenticated SSR reload; Native also checks the session survives an app restart.
+Acceptance, against the owner app directly with disposable data: signup (OIDC: first login) creates a user, a session lookup with the returned cookie returns that user, and after logout the same lookup returns no session.
 
-Pitfall (2026-11-02): cross-origin browser cookies do not authenticate Start SSR; the same-origin proxy and explicit SSR cookie forwarding are needed together.
-Pitfall (2026-11-02): `@better-auth/cli` is deprecated; the CLI ships as the `auth` package with the same version as `better-auth`.
-Pitfall (2026-11-02): the better-auth client bundle contains environment variable names such as `BETTER_AUTH_SECRET`; scan public bundles for secret values, not names.
+Pitfall (better-auth, 2026-11-02): `@better-auth/cli` is deprecated; the CLI ships as the `auth` package with the same version as `better-auth`.
+Pitfall (better-auth, 2026-11-02): the client bundle contains environment variable names such as `BETTER_AUTH_SECRET`; scan public bundles for secret values, not names.
 
-Sources: [Drizzle adapter](https://better-auth.com/docs/adapters/drizzle), [TanStack Start](https://better-auth.com/docs/integrations/tanstack), [Expo](https://better-auth.com/docs/integrations/expo).
+Sources: [better-auth installation](https://better-auth.com/docs/installation), [Drizzle adapter](https://better-auth.com/docs/adapters/drizzle), [Prisma adapter](https://better-auth.com/docs/adapters/prisma), [OpenID Connect Core](https://openid.net/specs/openid-connect-core-1_0.html).
