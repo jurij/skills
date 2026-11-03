@@ -10,7 +10,7 @@ Root `package.json` gets one `prepare` line, which the install runs in every clo
 "prepare": "lefthook install && git config merge.graphify.name 'graphify graph.json union merge' && git config merge.graphify.driver 'graphify merge-driver %O %A %B'"
 ```
 
-Confirm the `merge-driver` syntax in the current `graphify --help`. After adding the hook tool, run `<pm> run prepare` once: some installs (pnpm 12 `add`, an up-to-date `install`) skip the root `prepare`. Builds without a `.git` directory (container images) install with lifecycle scripts ignored.
+Confirm the `merge-driver` syntax in the current `graphify --help`. Write `lefthook.yml` before adding lefthook: its install runs on add and, without a config, writes an example config and extra hooks. After adding the hook tool, run `<pm> run prepare` once: some installs (pnpm 12 `add`, an up-to-date `install`) skip the root `prepare`. Builds without a `.git` directory (container images) install with lifecycle scripts ignored.
 
 ## Pre-commit
 

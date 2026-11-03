@@ -40,8 +40,9 @@ Omit `-g` to install into the current project.
 - recommended stack: Web + db, Web + Server + db + auth (v0.0.2), Web only via *Use recommended* (v0.1.0);
 - customized: pnpm + single package + Next.js + Postgres + Prisma + ESLint + Prettier + husky, code graph off;
 - existing repository: Docs (Fumadocs on TanStack Start) added to a Bun + Turborepo Web + Server + db + auth repository.
+- Desktop as Swift (macOS) menu bar app in a Bun + Turborepo repository with code graph (2026-11-03); its macOS CI job ran only locally.
 
-Remote steps, Nx, workspaces only, npm, Vite SPA, SQLite, OIDC, Ultracite with Biome, Native, Desktop, Swift apps inside the monorepo (a flat macOS Swift project passed CI on 2026-11-03), Storybook, qa, and every deploy target are unvalidated. Renovate does not update bun `workspaces.catalog` yet ([renovatebot/renovate#42909](https://github.com/renovatebot/renovate/pull/42909)); generated bun projects document a manual weekly catalog update.
+Remote steps, Nx, workspaces only, npm, Vite SPA, SQLite, OIDC, Ultracite with Biome, Native, Desktop, Swift (iOS), Storybook, qa, and every deploy target are unvalidated. Renovate does not update bun `workspaces.catalog` yet ([renovatebot/renovate#42909](https://github.com/renovatebot/renovate/pull/42909)); generated bun projects document a manual weekly catalog update.
 
 The Codex `quick_validate.py` rejects Claude's `disable-model-invocation` frontmatter field. Keep it: Claude Code needs it for explicit-only invocation.
 

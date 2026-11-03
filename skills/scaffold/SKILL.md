@@ -80,8 +80,8 @@ Read [tools](references/tools.md) and the reference of every selected unit. Each
 | Web | [web](references/web.md) |
 | Server | [server](references/server.md) |
 | Native, EAS | [native](references/native.md) |
-| Desktop, GitHub Releases | [desktop](references/desktop.md) |
-| Swift (iOS, macOS) | [swift](references/swift.md) |
+| Desktop (Electron), its GitHub Releases | [desktop](references/desktop.md) |
+| Swift (iOS, macOS), its GitHub Releases | [swift](references/swift.md) |
 | Docs | [docs](references/docs.md) |
 | Storybook | [storybook](references/storybook.md) |
 | db | [db](references/db.md) |
@@ -109,7 +109,7 @@ Done when each listed tool's version command reports the newest release, or the 
 
 A unit is one coherent change that is green on its own: bootstrap (new mode: workspace, lint, hooks, AGENTS.md, plus `config` and `env` when a JS/TS app is selected), `ui`, an app, `db`, `auth`, `qa`, CI, a deploy target; in extend mode also AGENTS.md, the pre-commit secret scan, or the CI secret scan when the repository lacks them. Order follows dependencies, not a fixed list: bootstrap first; `env` before its consumers; `ui` before browser apps; `db` and the auth owner app before `auth`; CI and deploy config after the app they cover builds. Each unit follows its reference from the step 3 table.
 
-The gates are `<pm> run check`, `check-types`, `build`, and `test` across the workspace; a package without a task (a Swift app has no `check-types`) records it as not applicable. Extend mode uses the repository's existing scripts for them and reports a missing one instead of adding it.
+The gates are `<pm> run check`, `check-types`, `build`, and `test` across the workspace; a package without a task (a Swift app has no `check-types`) records it as not applicable. Gates bypass the orchestrator cache (`--force` with Turborepo, `--skip-nx-cache` with Nx). Extend mode uses the repository's existing scripts for them and reports a missing one instead of adding it.
 
 For each unit:
 1. Implement only the selected building blocks and their prerequisites. Extend mode changes existing files only where the unit must register itself: dependency declarations and package scripts the unit needs, workspace or catalog entries, the lockfile, CI jobs, route or plugin registration in an existing app the unit plugs into (for example mounting auth routes in its owner), `ui` source scanning, hook jobs, lint ignore patterns for the unit's generated sources, its AGENTS.md section, and its `docs/scaffold.md` entry. The graph the hook refreshes belongs to every commit.

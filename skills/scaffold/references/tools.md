@@ -1,6 +1,6 @@
 # Tools
 
-Every run needs git, the chosen package manager, and gitleaks (the mandatory secret scan). The selection adds Node (pnpm, npm, and the CI acceptance checks), uv and graphify (code graph), gh (GitHub), Docker (Postgres), xcodegen (Swift apps; swift-format ships with the Swift toolchain), provider CLIs, and platform SDKs. List only the tools that apply. Always use the newest release; Node uses the newest LTS major that every selected framework and ORM supports (their `engines`, docs, and install warnings). Upgrade with the manager that installed the tool (`command -v <tool>` shows which).
+Every run needs git, the chosen package manager (npm counts only when chosen), and gitleaks (the mandatory secret scan). The selection adds Node (pnpm, npm, and the CI acceptance checks), uv and graphify (code graph), gh (GitHub), Docker (Postgres), xcodegen (Swift apps; swift-format ships with the Swift toolchain), provider CLIs, and platform SDKs. List only the tools that apply. Always use the newest release; Node uses the newest LTS major that every selected framework and ORM supports (their `engines`, docs, and install warnings). Upgrade with the manager that installed the tool (`command -v <tool>` shows which). Run the project's Node through the version manager; never change its global default.
 
 | Tool | Install or upgrade |
 | --- | --- |
@@ -16,13 +16,14 @@ Every run needs git, the chosen package manager, and gitleaks (the mandatory sec
 | xcodegen | `brew install xcodegen` / `brew upgrade xcodegen` (Swift apps) |
 | provider CLIs | project devDependencies where the provider ships an npm package (for example `wrangler`), otherwise the provider's official installer |
 
-The hook tool (lefthook, husky) is a project devDependency, never a global tool. CI acceptance uses actionlint (a local binary or the `rhysd/actionlint` image) and `npx --package renovate@<version> -- renovate-config-validator`.
+The hook tool (lefthook, husky) is a project devDependency, never a global tool. CI acceptance uses actionlint (`brew install actionlint`, or `docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:<version> -no-color`) and `npx --yes --package renovate@<version> -- renovate-config-validator --strict`.
 
 Manual only, with instructions instead of an install: Docker Desktop (https://docs.docker.com/desktop/), Xcode, Android Studio, and other platform SDKs.
 
 graphify stays one global install at the newest version. Its built-in auto-refresh of installed agent skills stays on.
 
 Pitfall (pnpm, 2026-11-02): `pnpm` on PATH may be a Corepack shim; Node 25+ ships no Corepack. The official installer moves pnpm to `$PNPM_HOME/bin` and rewrites the shell profile's PATH block, so globals linked by older versions in `$PNPM_HOME` leave PATH: list the profile change in the summary and keep `$PNPM_HOME` on PATH.
+Pitfall (Renovate 44.209, 2026-11-03): it requires Node `^24.11.0`; run the config validator on Node 24 when the project's Node is newer.
 Pitfall (Prisma 7.10, 2026-11-02): it supports Node 20, 22, and 24, not 26.
 Pitfall (uv + graphify, 2026-11-02): `uv tool upgrade graphifyy` keeps an exact version pin from an earlier `graphifyy==<version>` install and upgrades nothing; `uv tool install graphifyy@latest` replaces the pin.
 Pitfall (graphify, 2026-11-02): a second, project-local graphify version overwrote the global skill copies. Use one global install.

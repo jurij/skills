@@ -5,7 +5,7 @@ One PR/push workflow with least-privilege `contents: read`, action revisions pin
 Jobs:
 - **checks**: set up the package manager at the `packageManager` version (and Node from `.node-version` for pnpm and npm), run the frozen-lockfile install, then `<pm> run check`, `check-types`, `build`, `test`. With Postgres: a Postgres service container, migrations applied before tests. With SQLite: migrations against a file in the workspace.
 - **secrets**: checkout with full history (`fetch-depth: 0`), download the pinned gitleaks release binary from its official GitHub release, verify it against the release checksums file, run `gitleaks git --redact`.
-- **platform jobs**: OS-specific runners for Native or Desktop build/launch checks when those apps exist. Swift apps run their `check`, `build`, and `test` in a `macos-*` job; the Linux checks job excludes them with an orchestrator filter. On private repositories macOS minutes count ten times against the free quota: say so in the summary.
+- **platform jobs**: OS-specific runners for Native or Desktop build/launch checks when those apps exist. Swift apps run their `check`, `build`, and `test` in a `macos-*` job that installs xcodegen first (the runner image lacks it); the Linux checks job excludes them with an orchestrator filter. On private repositories macOS minutes count ten times against the free quota: say so in the summary.
 - **required**: one aggregate job that depends on all of the above and fails when any of them failed or was skipped. Its name is the single required check for branch protection.
 
 Extend mode: an existing workflow keeps its jobs; add only the missing ones, and the aggregate job when the repository has no required check yet.

@@ -7,12 +7,12 @@ Resolve the newest mutually compatible stable set once and freeze it. Stable mea
 Resolution order:
 1. Native selected: the Expo SDK dictates React and React Native; take them from its compatibility set.
 2. Intersect the peer ranges of the web framework, Vite, the Desktop renderer, Storybook, Docs, and `ui`. An empty intersection is a blocker to show in the summary.
-3. Pin generators and CLIs you invoke (`bunx`, `pnpm dlx`, or `npx` with `<tool>@<version>`). A range a generator writes or saves marks its supported versions: pin an exact version inside it.
+3. Pin generators and CLIs you invoke (`bunx`, `pnpm dlx`, or `npx` with `<tool>@<version>`). A range a generator writes or saves marks its supported versions: pin an exact version inside it. Read those ranges before freezing (run the generator once in a temporary directory).
 
 ## Layout (bootstrap)
 
 - Monorepo: `apps/*` and `packages/*`, private root, internal packages referenced by workspace protocol (`workspace:*` with bun and pnpm; npm links workspaces by name with `*`). Declare workspaces where the package manager reads them: `workspaces` in `package.json` (bun, npm) or `pnpm-workspace.yaml` (pnpm).
-- Shared versions: a catalog where the package manager has one (bun `workspaces.catalog`, pnpm `catalog` in `pnpm-workspace.yaml`); npm has none, so every package pins the same exact version.
+- Shared versions, once two packages share a dependency: a catalog where the package manager has one (bun `workspaces.catalog`, pnpm `catalog` in `pnpm-workspace.yaml`); npm has none, so every package pins the same exact version.
 - Orchestrator: Turborepo (`turbo.json`) or Nx (`nx.json` target defaults) runs tasks `build`, `check`, `check-types`, `test`, `dev` (persistent, uncached), with declared `outputs` and environment inputs; integration tests and runtime checks bypass the cache; no remote cache. Workspaces only: root scripts run the task in every package that has it (`bun run --filter '*' <task>`, `pnpm -r <task>`, `npm run <task> --workspaces --if-present`).
 - Single package: the one app sits at the root; packages become folders (`src/env`, `src/db`, `src/auth`, `src/ui`) with the same boundaries, and the root scripts run the tools directly. `ui` before the app uses shadcn's manual installation, because `shadcn init` needs a detected framework.
 - pnpm blocks dependency build scripts: decide each one with `pnpm approve-builds`, which records the decision in `pnpm-workspace.yaml` (a single package has that file too).
