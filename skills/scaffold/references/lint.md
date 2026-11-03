@@ -1,6 +1,6 @@
 # Lint and format
 
-One root config: shared presets plus framework rules only for selected apps. `check` runs lint and format in check mode, in the pre-commit hook and CI; formatting is an explicit edit beforehand. Enable type-aware linting when the resolved TypeScript and lint tools support it. `check-types` (the compiler) stays a separate gate under any lint setup.
+One root config: shared presets plus framework rules only for selected apps. It covers JS, TS, JSON, YAML, and Markdown; an app on another language brings its own linter as its package `check` ([swift](swift.md): swift-format), and the root `check` runs the root linter plus every package `check` through the orchestrator. The root linter ignores those apps' generated and build output. `check` runs lint and format in check mode, in the pre-commit hook and CI; formatting is an explicit edit beforehand. Enable type-aware linting when the resolved TypeScript and lint tools support it. `check-types` (the compiler) stays a separate gate under any lint setup.
 
 ## Ultracite (oxlint + oxfmt, or Biome)
 

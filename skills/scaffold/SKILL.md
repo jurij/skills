@@ -46,20 +46,21 @@ New mode: the first round includes one stack question with *Use recommended* (fi
 | lint | Ultracite (oxlint + oxfmt), Ultracite (Biome), ESLint + Prettier | always |
 | git hooks | lefthook, husky | always |
 
-The backend is the Server app (Hono) when selected in the Product round, otherwise the Web app's server routes. CI is GitHub Actions. Native, Desktop, Docs, and Storybook have one framework each. These are the only axes.
+The backend is the Server app (Hono) when selected in the Product round, otherwise the Web app's server routes. CI is GitHub Actions. Native and Desktop pick their framework in the Platforms group; Docs and Storybook have one framework each. These are the only axes.
 
 Extend mode asks no stack question: the detected stack is the stack. New units match it, and existing tooling is never migrated.
 
 ### Rounds
 
-Each row is a question group, not a round: a round holds every group whose dependencies are answered. New mode typically needs (1) Product with the stack question, Companions, Ownership; (2) with *Customize*, the package manager, layout, web, lint, and git hooks axes; then Packages, Targets, Integrations; (3) the db and auth axes for the selected packages.
+Each row is a question group, not a round: a round holds every group whose dependencies are answered. New mode typically needs (1) Product with the stack question, Companions, Ownership; (2) Platforms for selected Native or Desktop apps; with *Customize*, the package manager, layout, web, lint, and git hooks axes; then Packages, Targets, Integrations; (3) the db and auth axes for the selected packages.
 
 | Group | Decisions |
 | --- | --- |
-| Product | New mode: at least one of Web, Server (Hono), Native (Expo + uniwind), Desktop (Electron); the stack question joins this round. Extend mode: one round offering only the building blocks the repository lacks that fit its stack (apps, companions, packages, CI), each option naming what it adds to existing config (for example a hoisted linker for Native or Desktop). |
+| Product | New mode: at least one of Web, Server (Hono), Native (mobile), Desktop; the stack question joins this round. Extend mode: one round offering only the building blocks the repository lacks that fit its stack (apps, companions, packages, CI), each option naming what it adds to existing config (for example a hoisted linker for Native or Desktop). |
+| Platforms | Per selected Native or Desktop app, recommendation first: Native: Expo + uniwind, or Swift (iOS); Desktop: Electron, or Swift (macOS). Asked with *Use recommended* too, because it is a product decision. An answer that names a language ("a Swift app") maps here. |
 | Companions | New mode: Docs (Fumadocs) and Storybook. |
 | Packages | New mode: `db` with a backend (Server, or Web server routes; a Vite SPA has none). `auth` with a backend as its owner; better-auth requires `db`. `qa` (Playwright; optional Midscene AI tests, recommended on) with Web only. |
-| Targets | Per app, none first: Web/Docs/Storybook/Server: none, Coolify, or Cloudflare; Native: none or EAS; Desktop: none or GitHub Releases. Native/Desktop also pick target OS and architecture. |
+| Targets | Per app, none first: Web/Docs/Storybook/Server: none, Coolify, or Cloudflare; Native (Expo): none or EAS; Desktop (Electron) and Swift (macOS): none or GitHub Releases; Swift (iOS): none. Native/Desktop also pick target OS and architecture. |
 | Ownership | New mode: GitHub personal account, an organization (list with paginated read-only `gh api`), or local-only. Defaults: private repository, project name from the folder (validate npm and GitHub naming), email/password with better-auth. Extend mode keeps the existing remote. |
 | Integrations | Code graph with graphify (on by default, deselectable), project-local skills, MCP services; target hosts (Claude Code, Codex; default both) only when skills or MCP services are selected. Coolify endpoint only if Coolify is selected; PR previews on by default. Extend mode detects existing integrations instead of asking. |
 
@@ -80,6 +81,7 @@ Read [tools](references/tools.md) and the reference of every selected unit. Each
 | Server | [server](references/server.md) |
 | Native, EAS | [native](references/native.md) |
 | Desktop, GitHub Releases | [desktop](references/desktop.md) |
+| Swift (iOS, macOS) | [swift](references/swift.md) |
 | Docs | [docs](references/docs.md) |
 | Storybook | [storybook](references/storybook.md) |
 | db | [db](references/db.md) |
@@ -105,14 +107,14 @@ Done when each listed tool's version command reports the newest release, or the 
 
 ## 5. Build and commit units
 
-A unit is one coherent change that is green on its own: bootstrap (new mode: workspace, `config`, `env`, lint, hooks, AGENTS.md), `ui`, an app, `db`, `auth`, `qa`, CI, a deploy target; in extend mode also AGENTS.md, the pre-commit secret scan, or the CI secret scan when the repository lacks them. Order follows dependencies, not a fixed list: bootstrap first; `env` before its consumers; `ui` before browser apps; `db` and the auth owner app before `auth`; CI and deploy config after the app they cover builds. Each unit follows its reference from the step 3 table.
+A unit is one coherent change that is green on its own: bootstrap (new mode: workspace, lint, hooks, AGENTS.md, plus `config` and `env` when a JS/TS app is selected), `ui`, an app, `db`, `auth`, `qa`, CI, a deploy target; in extend mode also AGENTS.md, the pre-commit secret scan, or the CI secret scan when the repository lacks them. Order follows dependencies, not a fixed list: bootstrap first; `env` before its consumers; `ui` before browser apps; `db` and the auth owner app before `auth`; CI and deploy config after the app they cover builds. Each unit follows its reference from the step 3 table.
 
-The gates are `<pm> run check`, `check-types`, `build`, and `test` across the workspace. Extend mode uses the repository's existing scripts for them and reports a missing one instead of adding it.
+The gates are `<pm> run check`, `check-types`, `build`, and `test` across the workspace; a package without a task (a Swift app has no `check-types`) records it as not applicable. Extend mode uses the repository's existing scripts for them and reports a missing one instead of adding it.
 
 For each unit:
 1. Implement only the selected building blocks and their prerequisites. Extend mode changes existing files only where the unit must register itself: dependency declarations and package scripts the unit needs, workspace or catalog entries, the lockfile, CI jobs, route or plugin registration in an existing app the unit plugs into (for example mounting auth routes in its owner), `ui` source scanning, hook jobs, lint ignore patterns for the unit's generated sources, its AGENTS.md section, and its `docs/scaffold.md` entry. The graph the hook refreshes belongs to every commit.
 2. Run the gates. Tests run once (`vitest run --passWithNoTests`). Once an app exists it has a meaningful test; before that, `build` is not applicable and recorded so.
-3. Run the unit's local acceptance checks from its reference against fresh processes, never cached success; checks a reference marks "after approval" wait for step 6. HTTP apps (Web, Server, Docs, Storybook): expected status and content from the production build, not only the dev server. Electron and Expo: build or export, then launch. With `db`, start the database and apply migrations before any auth check.
+3. Run the unit's local acceptance checks from its reference against fresh processes, never cached success; checks a reference marks "after approval" wait for step 6. HTTP apps (Web, Server, Docs, Storybook): expected status and content from the production build, not only the dev server. Electron, Expo, and Swift: build or export, then launch. With `db`, start the database and apply migrations before any auth check.
 4. Add the unit's real commands and conventions to AGENTS.md and its decisions to `docs/scaffold.md`.
 5. Commit with an English conventional-commit message through the pre-commit hook.
 6. Run checks a reference marks "after commit" (they need a clone) in a fresh clone; a failure gets a fix commit before the next unit starts.
@@ -137,4 +139,4 @@ Report passed, failed, blocked, and not-applicable checks separately, plus the u
 
 Done when every selected unit and every external action appears in the report.
 
-Out of scope: Python/.NET/Swift projects, CLI tools, libraries, Tauri, alchemy, trigger.dev, Typesense, ElectricSQL, i18n, CodeQL, release-please, Scorecard, Turbo remote cache, migrating existing tooling, personal-default config, re-audit mode.
+A new language enters as an app under `apps/*` with its own reference, inside the same root stack. Out of scope: Python and .NET apps (no reference yet), CLI tools, libraries, Tauri, alchemy, trigger.dev, Typesense, ElectricSQL, i18n, CodeQL, release-please, Scorecard, Turbo remote cache, migrating existing tooling, personal-default config, re-audit mode.

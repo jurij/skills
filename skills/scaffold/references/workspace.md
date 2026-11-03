@@ -16,6 +16,7 @@ Resolution order:
 - Orchestrator: Turborepo (`turbo.json`) or Nx (`nx.json` target defaults) runs tasks `build`, `check`, `check-types`, `test`, `dev` (persistent, uncached), with declared `outputs` and environment inputs; integration tests and runtime checks bypass the cache; no remote cache. Workspaces only: root scripts run the task in every package that has it (`bun run --filter '*' <task>`, `pnpm -r <task>`, `npm run <task> --workspaces --if-present`).
 - Single package: the one app sits at the root; packages become folders (`src/env`, `src/db`, `src/auth`, `src/ui`) with the same boundaries, and the root scripts run the tools directly. `ui` before the app uses shadcn's manual installation, because `shadcn init` needs a detected framework.
 - pnpm blocks dependency build scripts: decide each one with `pnpm approve-builds`, which records the decision in `pnpm-workspace.yaml` (a single package has that file too).
+- An app on another toolchain (Swift) is a workspace package with a private `package.json` whose scripts wrap that toolchain ([swift](swift.md)).
 - Each HTTP app has its own default port in `dev` and `start`; `PORT` overrides it.
 - Linker: Native or Desktop needs a hoisted layout (bun `linker = "hoisted"` in `bunfig.toml`, pnpm `nodeLinker: hoisted` in `pnpm-workspace.yaml`; npm hoists by default). Otherwise keep the package manager's default. Each package still declares every dependency it imports.
 - Root scripts `check`, `check-types`, `build`, `test`, `dev` cover the whole workspace. Root also holds `prepare` from [hooks](hooks.md) and, with `db`, the scripts from [db](db.md).
@@ -24,8 +25,8 @@ Resolution order:
 
 ## Packages
 
-- `config` always: shared TypeScript base config (monorepo only; a single package keeps one `tsconfig.json`).
-- `env` always: t3-env with separate server and public exports plus `.env.example`. Each app passes its runtime's values (`process.env`, Worker bindings, public bundler variables) at its boundary. Server variables fail at server startup; a public import validates only public values and never loads server validation.
+- `config` with a JS/TS app: shared TypeScript base config (monorepo only; a single package keeps one `tsconfig.json`).
+- `env` with a JS/TS app: t3-env with separate server and public exports plus `.env.example`. Each app passes its runtime's values (`process.env`, Worker bindings, public bundler variables) at its boundary. Server variables fail at server startup; a public import validates only public values and never loads server validation.
 - `ui` only for browser renderers (Web, Desktop renderer, Docs, Storybook): Tailwind 4, shadcn, Base UI. Each browser app imports its stylesheet and adds the `ui` sources to Tailwind's source scanning. Expo uses React Native primitives with uniwind and never imports `ui`.
 
 ## Extend mode

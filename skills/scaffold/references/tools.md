@@ -1,6 +1,6 @@
 # Tools
 
-Every run needs git, the chosen package manager, and gitleaks (the mandatory secret scan). The selection adds Node (pnpm, npm, and the CI acceptance checks), uv and graphify (code graph), gh (GitHub), Docker (Postgres), provider CLIs, and platform SDKs. List only the tools that apply. Always use the newest release; Node uses the newest LTS major that every selected framework and ORM supports (their `engines`, docs, and install warnings). Upgrade with the manager that installed the tool (`command -v <tool>` shows which).
+Every run needs git, the chosen package manager, and gitleaks (the mandatory secret scan). The selection adds Node (pnpm, npm, and the CI acceptance checks), uv and graphify (code graph), gh (GitHub), Docker (Postgres), xcodegen (Swift apps; swift-format ships with the Swift toolchain), provider CLIs, and platform SDKs. List only the tools that apply. Always use the newest release; Node uses the newest LTS major that every selected framework and ORM supports (their `engines`, docs, and install warnings). Upgrade with the manager that installed the tool (`command -v <tool>` shows which).
 
 | Tool | Install or upgrade |
 | --- | --- |
@@ -13,6 +13,7 @@ Every run needs git, the chosen package manager, and gitleaks (the mandatory sec
 | graphify | `uv tool install graphifyy@latest` (install and upgrade) |
 | gitleaks | macOS `brew install gitleaks` / `brew upgrade gitleaks`; elsewhere the official release binary |
 | gh | macOS `brew install gh` / `brew upgrade gh`; elsewhere the official package |
+| xcodegen | `brew install xcodegen` / `brew upgrade xcodegen` (Swift apps) |
 | provider CLIs | project devDependencies where the provider ships an npm package (for example `wrangler`), otherwise the provider's official installer |
 
 The hook tool (lefthook, husky) is a project devDependency, never a global tool. CI acceptance uses actionlint (a local binary or the `rhysd/actionlint` image) and `npx --package renovate@<version> -- renovate-config-validator`.

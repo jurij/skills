@@ -55,4 +55,6 @@ Acceptance:
 - a staged file holding a fake credential (for example a generated GitHub token pattern) fails the commit, with the value redacted in the output;
 - after commit: a fresh clone plus install installs the hook and, with the code graph, prints the driver for `git config merge.graphify.driver`.
 
+Pitfall (gitleaks 8.30, 2026-11-03): a hand-written fake AWS key passed the scan. Prove the block with a `ghp_` token of 36 random alphanumeric characters, and check that `git log` gained no commit.
+
 Sources: [graphify team recipe](https://docs.graphify.com/cookbooks/shared-team-graph), [lefthook](https://lefthook.dev/configuration/), [husky](https://typicode.github.io/husky/), [gitleaks](https://github.com/gitleaks/gitleaks).
