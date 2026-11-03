@@ -46,7 +46,7 @@ New mode: the first round includes one stack question with *Use recommended* (fi
 | lint | Ultracite (oxlint + oxfmt), Ultracite (Biome), ESLint + Prettier | always |
 | git hooks | lefthook, husky | always |
 
-The backend is the Server app (Hono) when selected in the Product round, otherwise the Web app's server routes. CI is GitHub Actions. Native and Desktop pick their framework in the Platforms group; Docs and Storybook have one framework each. These are the only axes.
+The backend is the Server app (Hono) when selected in the Product round, otherwise the Web app's server routes. CI is GitHub Actions. Native and Desktop pick their framework in the Platforms group; Docs and Storybook have one framework each. An answer outside the listed options is accepted as an unvalidated choice.
 
 Extend mode asks no stack question: the detected stack is the stack. New units match it, and existing tooling is never migrated.
 
@@ -139,4 +139,4 @@ Report passed, failed, blocked, and not-applicable checks separately, plus the u
 
 Done when every selected unit and every external action appears in the report.
 
-A new language enters as an app under `apps/*` with its own reference, inside the same root stack. Out of scope: Python and .NET apps (no reference yet), CLI tools, libraries, Tauri, alchemy, trigger.dev, Typesense, ElectricSQL, i18n, CodeQL, release-please, Scorecard, Turbo remote cache, migrating existing tooling, personal-default config, re-audit mode.
+No technology is excluded. A choice without a reference (another language such as Python or .NET, Tauri, a CLI tool, a library, a service, a release or signing flow) enters as an app under `apps/*` or a package under `packages/*` inside the same root stack, is marked unvalidated, and follows its official docs at runtime; a validated run adds its reference. The skill never migrates existing tooling.

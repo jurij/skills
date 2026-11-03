@@ -4,7 +4,7 @@
 
 Packaging under the hoisted layout: make the desktop workspace self-contained for electron-builder and confirm packaged runtime dependencies sit inside it (bun: `installConfig.hoistingLimits: "workspaces"` if the frozen Bun supports it; pnpm and npm: electron-builder's monorepo docs). Allow only required install scripts (bun `trustedDependencies`, pnpm `onlyBuiltDependencies`), confirm the Electron binary downloaded, and rebuild native modules for Electron.
 
-Code signing, notarization, and auto-update are out of scope: label artifacts unsigned. GitHub Releases is an explicit upload of the reviewed artifact after the second confirmation, never a build side effect.
+Without signing credentials, label artifacts unsigned. Code signing, notarization, and auto-update are unvalidated: they follow electron-builder's docs, with credentials in the provider or CI secrets. GitHub Releases is an explicit upload of the reviewed artifact after the second confirmation, never a build side effect.
 
 Acceptance: dev launch shows main, preload, and renderer working; the packaged app launches on the selected OS; the renderer has no direct Node access; preload rejects an invalid message.
 

@@ -10,7 +10,7 @@ The app is a normal workspace package: a private `package.json` without dependen
 
 Orchestrator config: the package's outputs (`build/**`) and inputs (`project.yml`, `**/*.swift`, assets). The JS stack still applies at the root (package manager, orchestrator, lint for JS/JSON/YAML/Markdown, hooks, gitleaks, CI) even when no JS app exists; `config` and `env` are skipped without a JS/TS app.
 
-Signing: ad-hoc (`CODE_SIGN_IDENTITY: "-"`, `CODE_SIGN_STYLE: Manual`) builds locally and on CI runners without a team. Team signing, hardened runtime, notarization, App Store and TestFlight are out of scope: label artifacts unsigned. GitHub Releases (macOS only) uploads the reviewed zipped `.app` after the second confirmation.
+Signing: ad-hoc (`CODE_SIGN_IDENTITY: "-"`, `CODE_SIGN_STYLE: Manual`) builds locally and on CI runners without a team. Without a team, label artifacts unsigned. Team signing, hardened runtime, notarization, App Store, and TestFlight are unvalidated: they follow Apple's docs and need an Apple Developer team whose credentials the user configures. GitHub Releases (macOS only) uploads the reviewed zipped `.app` after the second confirmation.
 
 Acceptance:
 - `<pm> run test` is green and its result bundle reports more than zero passed and zero failed tests (`-quiet` prints no counts); a planted wrong expectation fails it.
